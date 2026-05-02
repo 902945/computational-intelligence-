@@ -16,6 +16,7 @@
    3. [Robustezza in diversi contesti scientifici](#13-robustezza-in-diversi-contesti-scientifici)
    4. [Trade-off e fragilità: il cancro come sistema robusto](#14-trade-off-e-fragilità-il-cancro-come-sistema-robusto)
    5. [Risposta robusta: restare o cambiare?](#15-risposta-robusta-restare-o-cambiare)
+   6. [Quando la robustezza viene persa: bistabilità e punti critici](#16-quando-la-robustezza-viene-persa-bistabilità-e-punti-critici)
 2. [Robustezza e Parametri del Modello](#2-robustezza-e-parametri-del-modello)
    1. [Parameter Estimation](#21-parameter-estimation)
    2. [Parameter Sweep Analysis (PSA)](#22-parameter-sweep-analysis-psa)
@@ -122,6 +123,23 @@ Comprendere quali attrattori sono possibili, e le condizioni che permettono di p
 
 ---
 
+### 1.6 Quando la robustezza viene persa: bistabilità e punti critici
+
+La robustezza non è una proprietà assoluta: esistono **punti critici** del sistema in cui una piccola variazione di un parametro di controllo provoca conseguenze qualitative sull'andamento asintotico del sistema. In questi punti critici — detti anche **punti di biforcazione** — il sistema perde la propria robustezza e transita verso un regime funzionale qualitativamente diverso.
+
+I due fenomeni più importanti legati alla perdita di robustezza sono:
+
+**1. La transizione da stato stazionario a regime oscillatorio (e viceversa)**
+In molti sistemi biologici (come i pathway di segnalazione), il sistema può trovarsi in un regime di equilibrio stabile oppure esibirere oscillazioni persistenti. Queste due modalità corrispondono a due attrattori diversi. Ai punti critici, la piccola variazione di un parametro (es. la quantità di una proteina regolatrice) può spingere il sistema da un regime all'altro in modo netto e irreversibile, almeno localmente.
+
+**2. Bistabilità**
+Un sistema **bistabile** ha due stati stazionari stabili coesistenti per gli stessi valori dei parametri. A seconda delle condizioni iniziali (o di perturbazioni sufficientemente grandi), il sistema può trovarsi nell'uno o nell'altro attrattore. La bistabilità è biologicamente molto rilevante: spiega fenomeni come l'accensione (switch ON/OFF) di geni, la differenziazione cellulare irreversibile, o la scelta tra apoptosi e sopravvivenza.
+
+**Connessione con i modelli computazionali:**
+Comprendere dove si trovano questi punti critici — e quindi prevedere quando un sistema robusto può collassare — è uno dei principali obiettivi dell'analisi computazionale. Strumenti come la **Parameter Sweep Analysis**, la **Sensitivity Analysis** e la **Bifurcation Theory** (descritti nel §2) forniscono i metodi per identificare sistematicamente questi punti critici e per capire quali parametri ne sono i "fattori di controllo" critici.
+
+---
+
 ## 2. Robustezza e Parametri del Modello
 
 Quando si studia un sistema complesso tramite un modello matematico/computazionale, i parametri del modello giocano un ruolo cruciale. Essi possono rappresentare, in biologia, le quantità iniziali di molecole (es. il numero di molecole di una proteina) oppure le costanti cinetiche delle reazioni (quanto velocemente avviene una reazione chimica). La domanda fondamentale è: **quanto è sensibile il comportamento del sistema al variare di questi parametri?**
@@ -221,6 +239,24 @@ La **teoria delle biforcazioni** è il ramo della matematica che studia come il 
 
 Per comprendere la teoria delle biforcazioni è necessario avere familiarità con i **sistemi dinamici** e il concetto di **punto fisso** (o punto di equilibrio).
 
+#### Sistemi lineari vs. non lineari
+
+Prima di addentrarsi nei sistemi dinamici, è utile distinguere tra sistemi lineari e non lineari, perché i metodi analitici cambiano radicalmente.
+
+**Sistemi lineari:** le equazioni del sistema sono combinazioni lineari delle variabili di stato. Sono trattabili analiticamente in modo completo: la soluzione generale si trova per sovrapposizione degli autovettori della matrice del sistema. Tuttavia, la linearità è un'approssimazione valida solo localmente attorno a un punto di equilibrio; la maggior parte dei sistemi reali (biologici, fisici, ingegneristici) è **non lineare**.
+
+**Sistemi non lineari:** le equazioni contengono termini non lineari (prodotti di variabili, esponenziali, ecc.). Non ammettono in generale soluzioni analitiche esatte. Questo non significa però che il comportamento sia incomprensibile: la chiave è adottare un **approccio geometrico** anziché analitico.
+
+Come afferma S.H. Strogatz:
+> *"Le immagini sono spesso più utili delle formule per analizzare i sistemi non lineari. In molti casi l'informazione qualitativa è quella che ci interessa, e allora le immagini sono perfette."*
+
+Lo **spazio delle fasi** (*phase space*) è la rappresentazione geometrica fondamentale: ogni stato del sistema è un punto nello spazio delle fasi, e le **traiettorie** mostrano come il sistema evolve nel tempo partendo da diverse condizioni iniziali. Ad esempio, la soluzione del pendolo non lineare — impossibile da esprimere in forma chiusa — è facilmente visualizzabile come una famiglia di curve nello spazio delle fasi (posizione × velocità), che rivela immediatamente regioni di oscillazione periodica, separatrici e punti di equilibrio.
+
+Questo approccio geometrico permette di:
+- Identificare punti fissi (equilibri) e la loro stabilità
+- Comprendere la struttura globale degli attrattori
+- Visualizzare come le traiettorie si organizzano nello spazio senza risolvere le ODE
+
 #### Sistemi dinamici e punti fissi
 
 Un sistema dinamico unidimensionale è descritto da un'equazione differenziale del tipo:
@@ -235,8 +271,6 @@ Un **punto fisso** è un valore $x^*$ tale che $f(x^*) = 0$: in quel punto, il s
 - Un punto fisso è **instabile** se perturbazioni piccole crescono nel tempo allontanando il sistema dal punto fisso.
 
 **Esempio:** per $\dot{x} = x^2 - 1$, i punti fissi sono $x^* = +1$ (instabile) e $x^* = -1$ (stabile).
-
-**Pensiero geometrico vs. analitico:** Come afferma S.H. Strogatz, "le immagini sono spesso più utili delle formule per analizzare i sistemi non lineari". Lo **spazio delle fasi** (*phase space*) è la rappresentazione in cui gli stati del sistema sono punti e le traiettorie mostrano come il sistema evolve nel tempo. Questo approccio permette di capire la struttura qualitativa del comportamento anche senza risolvere esattamente le equazioni differenziali.
 
 #### Le principali biforcazioni (sistemi 1D)
 
@@ -352,8 +386,31 @@ Le simulazioni mostrano che l'attivazione di **entrambi** i controlli di feedbac
 **Differenza tra simulazione stocastica e deterministica:**
 Questo pathway illustra in modo eccellente la differenza tra i due approcci simulativi. La simulazione deterministica (equazioni differenziali ordinarie) rivela gli attrattori del sistema medio, ma non cattura le fluttuazioni. La simulazione stocastica (algoritmi come il Gillespie SSA) tiene conto del fatto che le molecole sono entità discrete e le reazioni eventi probabilistici — fondamentale quando le quantità molecolari sono piccole (come nei pathway di segnalazione intracellulare).
 
-**Ruolo dei nucleotidi guaninati (GTP/GDP):**
+**Ruolo dei nucleotidi guaninati (GTP/GDP) — PSA-1D:**
+Prima di analizzare la combinazione dei due fattori, è stata condotta una PSA-1D sul GTP separatamente. La quantità iniziale di GTP influenza le oscillazioni in modo differente a seconda della quantità di Cdc25:
+- Con Cdc25 al valore standard (300 molecole): variare GTP modifica l'ampiezza delle oscillazioni ma non sempre elimina il regime oscillatorio.
+- Con Cdc25 in over-espressione (500 molecole): la variazione di GTP produce effetti qualitativamente diversi, spostando prima il sistema fuori dal regime oscillatorio stabile.
+Questa analisi monodimensionale ha motivato l'esplorazione bidimensionale combinata.
+
+**Ruolo dei nucleotidi guaninati (GTP/GDP) — PSA-2D:**
 La PSA-2D su GTP e Cdc25 ha rivelato quattro regimi qualitativamente distinti, mappati in uno spazio bidimensionale. Questo tipo di analisi è possibile solo perché si possono eseguire decine di migliaia di simulazioni grazie al **GPU computing**: 65.000 simulazioni in 2 ore su GPU, contro sole 200 simulazioni in 2 ore su CPU.
+
+| Regime | GTP | Cdc25 | Comportamento |
+|--------|-----|-------|---------------|
+| I | basso | basso | nessuna oscillazione, stato stazionario |
+| II | alto | basso | oscillazioni smorzate |
+| III | basso | alto | oscillazioni smorzate |
+| IV | alto | alto | oscillazioni stabili |
+
+**Ruolo della fosfodiesterasi Pde1 (PSA-1D):**
+Un'ulteriore PSA-1D è stata condotta sulla costante di fosforilazione di **Pde1** (parametro $c_{26}$, nell'intervallo $[1.0 \times 10^{-9}, 1.0 \times 10^{-3}]$, con valore di riferimento $1.0 \times 10^{-6}$). Pde1 è uno degli enzimi che degrada il cAMP ed è attivato da PKA (loop di feedback negativo).
+
+I risultati mostrano che:
+- Per valori di $c_{26}$ molto bassi (fosforilazione lenta di Pde1): il feedback negativo tramite Pde1 è debole, e il cAMP si accumula — il sistema tende verso uno stato stazionario ad alta concentrazione di cAMP.
+- Per valori di $c_{26}$ vicini al riferimento: il feedback è bilanciato e si instaurano oscillazioni stabili.
+- Per valori di $c_{26}$ molto alti (fosforilazione rapida di Pde1): il feedback negativo è troppo forte, il cAMP viene abbattuto rapidamente e il sistema converge a uno stato stazionario a bassa concentrazione.
+
+Questa analisi sottolinea come il bilanciamento preciso dei loop di feedback (Pde1, Cdc25, Ira2) sia necessario per mantenere il regime oscillatorio — e come la robustezza di questo regime dipenda da un intervallo relativamente ristretto di valori parametrici.
 
 **Significato biologico delle oscillazioni:**
 Le oscillazioni in questo pathway potrebbero estendere il range regolatorio del sistema attraverso la **modulazione di frequenza** (frequency-modulated signaling): la PKA — che controlla il 90% dei geni regolati dal glucosio nel lievito — può codificare informazioni diverse in base alla frequenza delle oscillazioni di cAMP, non solo alla loro ampiezza.
@@ -439,6 +496,18 @@ Per trasferire con successo l'AI nell'ambiente clinico reale occorre affrontare 
 
 ### 4.4 Apprendimento supervisionato
 
+#### Panoramica dei paradigmi di apprendimento
+
+Prima di entrare nel dettaglio del lavoro, è utile inquadrare i tre paradigmi di apprendimento automatico rilevanti in questo contesto:
+
+| Paradigma | Dati usati | Caratteristiche | Limitazioni |
+|-----------|-----------|-----------------|-------------|
+| **Supervised** | Solo dati etichettati $(x, y)$ | Alta accuratezza; logica diretta | Costoso da annotare in ambito medico |
+| **Unsupervised** | Solo dati non etichettati $(x)$ | Nessun bisogno di annotazioni | Non controlla direttamente il task diagnostico |
+| **Semi-Supervised (SSL)** | Piccolo set etichettato + grande pool non etichettato | Sfrutta dati abbondanti non annotati | Richiede assunzioni sulla struttura dei dati |
+
+In ambito medico, le annotazioni di esperti sono **costose e scarse** (richiedono expertise radiologico specializzato), mentre i dati non annotati sono abbondanti. Questo rende il SSL particolarmente attraente — e motiva la progressione nel lavoro da approccio supervisionato → semi-supervisionato → ensemble.
+
 #### Dataset e struttura
 
 Il dataset proviene dall'Ospedale Universitario – Istituto di Radiologia dell'Università di Padova. Ogni paziente contribuisce con **6 immagini**:
@@ -465,6 +534,36 @@ I Vision Transformers adattano l'architettura Transformer (originariamente svilu
 
 **Obiettivo del confronto CNN vs ViT:**
 Confrontare la "efficienza locale" delle CNN con la "capacità rappresentativa globale" dei Transformer, per capire quali strutture portano a diagnosi più accurate e calibrate su immagini di T1/T2 mapping.
+
+#### Data Augmentation
+
+Per contrastare l'overfitting e migliorare la robustezza del modello a variazioni di acquisizione e anatomia, viene applicata una pipeline sistematica di **data augmentation**. L'obiettivo è simulare realisticamente la variabilità clinica (differenze di scanner, postura del paziente, artefatti) in modo che il modello apprenda feature distribuita e contestuale anziché affidarsi a cue localizzati.
+
+La pipeline include trasformazioni geometriche (rotazioni, flip orizzontali/verticali, zoom casuali) e trasformazioni di intensità (variazioni di contrasto e luminosità) per simulare differenze tra centri e scanner diversi.
+
+**Enhancements specifici per i Vision Transformer:**
+- **Gaussian blur** (sfocatura gaussiana): simula la variabilità di risoluzione tra sequenze di acquisizione diverse, forzando la self-attention a catturare strutture a scale multiple.
+- **Aggressive RandomResizedCrop:** ritaglio casuale a scala variabile che sfrutta la sensibilità spaziale della self-attention, evitando che il modello si ancori a posizioni fisse nell'immagine.
+
+L'effetto complessivo è che il modello è costretto a imparare **rappresentazioni distribuite e context-aware**, resistenti agli artefatti di acquisizione tipici delle immagini CMR in contesti clinici reali.
+
+#### Risultati sperimentali: approccio supervisionato
+
+**Risultati a livello di immagine (image-level):**
+Le architetture moderne (EfficientNetV2-m, ViT-Base) superano costantemente le architetture legacy (ResNet-50). Tuttavia, i valori di ROC-AUC rimangono moderati su tutti i singoli modelli. La causa principale è la **strategia di labeling clinicamente motivata**: le etichette vengono propagate dal paziente a tutte le sue slice (una slice è "malata" se il paziente è malato, indipendentemente da quella slice specifica). Questo introduce noise a livello di immagine, rendendo difficile la discriminazione a quel livello.
+
+**Risultati a livello di paziente (patient-level) e il Paradosso ConvNeXt:**
+Aggregando le predizioni delle singole slice per produrre una diagnosi a livello paziente, le performance migliorano. Emerge però un **paradosso significativo** con ConvNeXt-Base:
+
+| Metrica | ConvNeXt-Base | Interpretazione |
+|---------|--------------|-----------------|
+| Accuracy | Più alta | Ottima capacità di rilevamento |
+| F1-Score | Più alto | Buona precision-recall |
+| ROC-AUC | Più bassa | Scarsa calibrazione delle probabilità |
+
+Questo "paradosso" dimostra che **alta accuratezza può coesistere con scarsa calibrazione**: il modello è molto capace di classificare correttamente, ma le sue probabilità predette non sono ben allineate con le frequenze empiriche — è overconfident. Questa è una problematica critica in ambito clinico, dove la stratificazione del rischio richiede probabilità affidabili, non solo classificazioni binarie.
+
+La stessa tendenza si osserva per la famiglia EfficientNet. Questa constatazione motiva direttamente l'adozione di tecniche come il **Label Smoothing**, la **Focal Loss** e il **Temperature Scaling** per migliorare la calibrazione, descritti nella sezione successiva.
 
 ---
 
@@ -537,6 +636,8 @@ $$s_j^{(t+1)} = \alpha \cdot s_j^{(t)} + (1-\alpha) \cdot \hat{p}_j^{(t)}$$
 
 Questo filtra il rumore stocastico dei mini-batch e crea un effetto di *temporal ensembling*: la label riflette le previsioni medie di versioni multiple del modello nel tempo, teoricamente più accurate di qualsiasi singola previsione.
 
+**Punto importante:** l'EMA è applicata **sia ai dati non etichettati che a quelli etichettati**. Per i dati non etichettati, l'EMA affina gradualmente la pseudo-label. Per i dati etichettati, la comprensione evolutiva del modello "ammorbidisce" le etichette ground-truth: anziché imparare da etichette fisse one-hot (0 o 1), il modello integra la sua comprensione crescente del campione, ottenendo una forma di *regolarizzazione appresa* che riduce l'overfitting alle etichette rumorose.
+
 **Limitazioni del self-training di base:**
 - **Error propagation:** nella struttura gerarchica delle etichette, una singola slice mal classificata può "contaminare" il segnale di training nei round successivi.
 - **Confirmation bias:** senza validazione esterna, il modello tende a rinforzare le proprie previsioni errate o ambigue. La soluzione richiede un **Expert-in-the-loop** (Active Learning).
@@ -599,7 +700,11 @@ Per $T > 1$ le probabilità vengono "smussate" (riduce l'overconfidence), per $T
 
 I risultati mostrano che la diversità architetturale è più influente della specifica strategia di aggregazione: il weighted averaging non supera significativamente il simple averaging quando i modelli sono sufficientemente diversi.
 
-**Risultato clinico:** l'aggregazione delle previsioni a livello di slice porta a un **salto massiccio nell'affidabilità diagnostica a livello paziente**, con alta efficacia per la stratificazione del rischio.
+**Risultati a livello di immagine (image-level):**
+L'ensemble mitiga i bias individuali di ciascun backbone. La complementarità architetturale tra CNN (efficienza locale) e ViT (contesto globale) porta a una baseline di predizione più stabile di qualsiasi modello singolo. Notabilmente, l'averaging uniforme è quasi equivalente al weighted averaging: quando i modelli sono sufficientemente diversi, la diversità architetturale conta più della ponderazione precisa.
+
+**Risultato clinico a livello paziente (patient-level):**
+L'aggregazione delle predizioni a livello di slice porta a un **salto massiccio nell'affidabilità diagnostica a livello paziente**. Il sistema dimostra alta efficacia per la stratificazione del rischio. Questo conferma che **la diversità architetturale è più influente della specifica strategia di aggregazione**: un ensemble eterogeneo (CNN + ViT + SSL) con averaging uniforme e calibrazione è sufficiente per ottenere prestazioni clinicamente rilevanti.
 
 ---
 
@@ -641,7 +746,26 @@ Una collaborazione con i radiologi dell'Ospedale di Padova ha rivelato una serie
 - **No "Gold Standard":** nessun metodo si è dimostrato chiaramente superiore agli altri.
 - **Experience Bias:** il metodo preferito correlava con l'esperienza del medico (i veterani erano più conservatori/scettici).
 
-**Conclusione fondamentale:** alta accuratezza non garantisce spiegazioni affidabili. La XAI spesso non riesce a colmare il gap tra la logica della "scatola nera" e l'intuizione clinica. Questo motiva la ricerca verso modelli intrinsecamente interpretabili (come quelli basati su pyFUME, un framework per sistemi fuzzy interpretabili).
+**Conclusione fondamentale:** alta accuratezza non garantisce spiegazioni affidabili. La XAI spesso non riesce a colmare il gap tra la logica della "scatola nera" e l'intuizione clinica. Questo motiva la ricerca verso modelli intrinsecamente interpretabili.
+
+#### pyFUME: verso l'interpretabilità by design
+
+**pyFUME** (Python Fuzzy MEasure) è un framework open-source per la costruzione di **sistemi di inferenza fuzzy** (Fuzzy Inference Systems, FIS) che siano intrinsecamente interpretabili. A differenza dei modelli deep learning che producono spiegazioni post-hoc (come Grad-CAM), i modelli basati su pyFUME sono *white-box by design*: la loro logica è trasparente prima ancora che venga fatta una predizione.
+
+**Come funziona:**
+Un sistema fuzzy rappresenta la conoscenza tramite **regole IF-THEN** in linguaggio naturale, del tipo:
+- *IF T1 è "elevato" AND età è "giovane" THEN diagnosi è "probabile patologia"*
+
+Le variabili linguistiche (es. "elevato", "giovane") sono definite da **funzioni di appartenenza** (*membership functions*) che consentono una transizione graduale tra categorie (a differenza della logica classica binaria). Questo rispecchia meglio la natura continua delle misurazioni mediche.
+
+**Perché è rilevante per la fairness:**
+La struttura esplicita delle regole fuzzy permette di:
+1. **Verificare** che il modello non stia usando attributi protetti (genere, età, etnia) in modo discriminatorio.
+2. **Auditare** le decisioni in modo comprensibile da medici e pazienti.
+3. **Garantire equità by design**: le regole possono essere vincolate esplicitamente per assicurare prestazioni bilanciate su diversi sottogruppi.
+
+**Trade-off accuratezza vs. interpretabilità:**
+I sistemi fuzzy possono avere accuratezza leggermente inferiore ai modelli deep learning su dataset complessi. Tuttavia, in contesti clinici ad alto rischio, questa perdita marginale di accuratezza è spesso accettabile in cambio di trasparenza totale, conformità normativa (EU AI Act Art. 13 e 86) e fiducia da parte di medici e pazienti.
 
 ---
 
@@ -799,7 +923,18 @@ $$S = \frac{c}{a + b - c}$$
 
 dove $a$ e $b$ sono il numero di bit a 1 nelle fingerprint dei due composti, e $c$ il numero di bit a 1 in entrambe. $S=1$ indica molecole identiche, $S=0$ molecole senza feature in comune.
 
-**Risultati:** il modello proposto supera significativamente MetaTrans (lo stato dell'arte precedente), con Recall 99.6%, F1 score 76.8%.
+**Risultati:** il modello proposto supera significativamente MetaTrans (lo stato dell'arte precedente). La tabella seguente riporta il confronto completo tra i due modelli sviluppati e MetaTrans:
+
+| Metrica | Modello 1 | Modello 2 | MetaTrans |
+|---------|-----------|-----------|-----------|
+| **Recall** | 99.6% | 99.6% | 57.9% |
+| **Precision** | 54.5% | 62.4% | 53.4% |
+| **F1 Score** | 70.5% | 76.8% | 55.5% |
+| **Accuracy** | 54.1% | 62.3% | 38.8% |
+
+Entrambi i modelli raggiungono un Recall quasi perfetto (99.6%), cruciale in un contesto medico dove i falsi negativi (metaboliti tossici non rilevati) sono pericolosi. Il Modello 2 supera il Modello 1 in Precision, F1 e Accuracy grazie a ottimizzazioni architetturali, mentre MetaTrans rimane significativamente indietro su tutte le metriche.
+
+**Piano futuro:** automatizzare l'analisi delle predizioni per ridurre il costo del processo di validazione.
 
 **Valore clinico:** permette di prioritizzare i candidati più promettenti, identificare potenziali tossicità e interazioni farmaco-farmaco, e comprendere i meccanismi biologici sottostanti.
 
@@ -812,6 +947,16 @@ dove $a$ e $b$ sono il numero di bit a 1 nelle fingerprint dei due composti, e $
 Le **terapie basate su acidi nucleici** (es. siRNA, mRNA terapeutico) hanno il potenziale di trattare malattie genetiche, ma richiedono sistemi di rilascio (nanocarrier) che le proteggano dalla degradazione, superino le barriere cellulari e riducano l'immunogenicità.
 
 I **peptidi ciclici** stanno emergendo come nanocarrier ideali per queste terapie. Il goal computazionale è progettare peptidi ciclici che si leghino a recettori tessuto-specifici per un rilascio mirato.
+
+#### Caso di studio: target CD8
+
+Il caso di studio concreto utilizza come target il recettore **CD8**, espresso sulle cellule T citotossiche del sistema immunitario — un bersaglio rilevante per le terapie basate su siRNA o mRNA che necessitano di essere internalizzate selettivamente in queste cellule.
+
+| Target | Motivo noto (punto di partenza) | Fonte strutturale (PDB ID) |
+|--------|--------------------------------|---------------------------|
+| CD8 | DQTQDTE (dominio α3 di una molecola MHC di classe I umana) | 1AKJ |
+
+Il motivo peptidico **DQTQDTE** è il punto di partenza dell'ottimizzazione: è un frammento della proteina MHC di classe I (complesso maggiore di istocompatibilità) che interagisce naturalmente con CD8. Il workflow computazionale (docking → Monte Carlo → MD) parte da derivati ciclizzati di questo motivo per esplorare lo spazio delle varianti con migliore affinità e proprietà strutturali.
 
 #### Workflow di ottimizzazione
 
@@ -845,7 +990,14 @@ I risultati del docking vengono filtrati osservando:
 - Stabilità delle interazioni chiave
 - Integrità strutturale del peptide ciclico
 
-**Esempio di risultato:** le sequenze top identificate mostrano affinità di legame fino a -11.293 kcal/mol (TOP1), con interazioni chiave mediata da residui TRP2 e PHE10.
+**Esempio di risultato:** le sequenze top identificate mostrano affinità di legame fino a -11.293 kcal/mol (TOP1), con interazioni chiave mediate da residui TRP2 e PHE10. La tabella seguente riporta le affinità delle quattro sequenze migliori:
+
+| Peptide | Affinità (kcal/mol) | Interazioni chiave |
+|---------|--------------------|--------------------|
+| TOP1 | -11.293 | TRP2, PHE10 |
+| TOP2 | -10.575 | PHE10, THR5 |
+| TOP12 | -9.061 | — |
+| TOP0 | -8.634 | — |
 
 **Valore dell'approccio:** più veloce dei metodi puramente fisici, più affidabile degli algoritmi di Machine Learning puri.
 
@@ -887,6 +1039,23 @@ Il **SA Scorer** (implementato in RDKit, la principale libreria open-source per 
 Dopo 200 generazioni, le molecole migliori mostrano:
 - Affinità normalizzata: ~0.82 (molto alta)
 - SA score: ~3.2 (moderatamente sintetizzabile)
+
+La tabella seguente riporta le 10 molecole top generate dal GA (ordinate per affinità decrescente), con la loro rappresentazione SMILES, il valore di affinità normalizzato (DrugClip) e il SA score (RDKit):
+
+| Gen. | SMILES | Affinità | SA Score |
+|------|--------|----------|---------|
+| 189 | `NC(=O)Oc1npccc1C(=O)Nc1ccc(C(N)=O)cn1` | 0.8243 | 3.23 |
+| 93 | `NC(=O)OC1=NP=NC=C1C(=O)NC1=CC=C(C(N)=O)C=N1` | 0.8236 | 3.31 |
+| 168 | `NC(=O)OC1=NP=NC=C1C(=O)Nc1ccc(C(N)=O)cn1` | 0.8236 | 3.31 |
+| 78 | `NC(=O)C1=CN=C(NC(=O)C2=CC=PN=C2OC(=P)P)N=P1` | 0.8139 | 5.32 |
+| 96 | `NC(=O)C1=PN=C(NC(=O)C2=CC=PN=C2OC(=O)Br)N=C1` | 0.8072 | 4.53 |
+| 90 | `CC(=O)Oc1npccc1C(=O)Nc1ccc(C(N)=O)cn1` | 0.8038 | 3.14 |
+| 145 | `CC(=O)OC1=NP=CC=C1C(=O)Nc1ccc(C(N)=O)cn1` | 0.8038 | 3.14 |
+| 69 | `COOCOC1=NP=NC=C1C(=O)NC1=NP=C(C(N)=O)C=N1` | 0.7984 | 4.60 |
+| 132 | `NC(=O)OC1=NP=CC=C1C(=O)NC1=CN=C(C(N)=O)C=N1` | 0.7597 | 3.46 |
+| 36 | `NC(=O)C1=CN=C(NC(=O)C2=CC=PN=C2O)C=C1` | 0.7582 | 3.25 |
+
+Le molecole top presentano affinità normalizzata elevata (>0.82) combinata con SA score relativamente basso (~3.2), indicando che il GA ha trovato un buon bilanciamento tra ottimizzazione dell'affinità e sintetizzabilità.
 
 **Valore dell'approccio rispetto al docking tradizionale:**
 - Più veloce del docking tradizionale (non richiede la struttura 3D del bersaglio)
@@ -950,6 +1119,7 @@ Il fine-tuning da ImageNet a CMR (Grazioso) è un esempio di transfer learning c
 | **OAT** | One-Factor-At-a-Time, metodo di SA che varia un parametro alla volta |
 | **Optuna/TPE** | Framework Bayesiano per l'ottimizzazione automatica degli iperparametri |
 | **PSA** | Parameter Sweep Analysis, analisi sistematica dell'effetto dei parametri |
+| **pyFUME** | Framework per sistemi di inferenza fuzzy intrinsecamente interpretabili (white-box AI) |
 | **SA** | Sensitivity Analysis, analisi di sensibilità dei parametri di un modello |
 | **SMILES** | Simplified Molecular-Input Line-Entry System, rappresentazione testuale di molecole |
 | **SSL** | Semi-Supervised Learning, apprendimento con dati etichettati e non etichettati |

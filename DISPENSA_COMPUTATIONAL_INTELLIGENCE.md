@@ -346,12 +346,31 @@ Questi esempi illustrano un punto essenziale della teoria delle biforcazioni: **
 
 Un esempio concreto di come gli strumenti computazionali descritti vengono applicati a un sistema biologico reale è il pathway **Ras/cAMP/PKA** nel lievito (*Saccharomyces cerevisiae*).
 
+> **Connessione con le sezioni precedenti.** Questo caso studio è il banco di prova di tutto ciò che è stato introdotto nelle sezioni 1 e 2: la nozione di robustezza di un sistema complesso (§1), gli attrattori stazionari e oscillatori (§1.5–1.6), la teoria delle biforcazioni (§2.4) e l'intera cassetta degli attrezzi computazionali — Parameter Sweep Analysis (§2.2) e Sensitivity Analysis (§2.3). Il pathway Ras/cAMP/PKA nel lievito è un sistema biologico compatto, geneticamente accessibile e ben caratterizzato sperimentalmente: è quindi il caso ideale su cui costruire intuizioni che poi si generalizzano a sistemi più grandi e complessi.
+
+---
+
+### 3.0 Perché il lievito?
+
+*Saccharomyces cerevisiae* è uno degli organismi modello più studiati in biologia molecolare, per diverse ragioni che lo rendono prezioso anche per la modellazione computazionale:
+
+- **Semplicità e accessibilità sperimentale:** il lievito è un eucariote unicellulare, con un genoma completamente sequenziato (~6000 geni), facilmente manipolabile tramite tecniche di genetica molecolare (delezioni, over-espressioni, fusioni proteiche con GFP per la microscopia live).
+- **Alta conservazione evolutiva:** molti componenti del pathway Ras/cAMP/PKA nel lievito hanno omologhi funzionali nei mammiferi, incluso l'uomo. Comprendere la regolazione in *S. cerevisiae* fornisce quindi un modello concettuale trasferibile.
+- **Disponibilità di dati quantitativi:** le concentrazioni intracellulari di molte molecole del pathway (numero di molecole per cellula), le costanti cinetiche delle reazioni e le interazioni regolative sono state misurate sperimentalmente e sono disponibili per la costruzione di modelli matematici.
+- **Rilevanza fisiologica:** il pathway Ras/cAMP/PKA è il principale responsabile della risposta del lievito ai nutrienti (specialmente al glucosio), coordinando crescita, metabolismo e resistenza allo stress. Perturbazioni in pathway analoghi nell'uomo sono associate a cancro (Ras è uno degli oncogeni più frequentemente mutati) e diabete.
+
+---
+
 ### Contesto biologico
 
 Il lievito risponde alla presenza di glucosio attraverso 5 pathway interlacciati che producono massicce modificazioni trascrizionali (cambiamenti nell'espressione genica). Al centro di questa risposta c'è il pathway Ras/cAMP/PKA, che controlla:
 - Regolazione del metabolismo
 - Resistenza allo stress
 - Progressione del ciclo cellulare
+
+Quando il glucosio è abbondante, il pathway viene fortemente attivato: la cellula entra in modalità "crescita rapida", sopprimendo i programmi di resistenza allo stress (che consumano risorse) e accelerando la divisione cellulare. In assenza di glucosio, avviene il contrario: la PKA è inattiva, e la cellula attiva programmi di sopravvivenza (produzione di glicogeno, attivazione di geni di stress). Il pathway è quindi un **interruttore metabolico centrale**.
+
+---
 
 ### Struttura molecolare del pathway
 
@@ -367,11 +386,65 @@ Il pathway funziona secondo questa logica (semplificata):
    - Attivazione positiva di Ira2 (→ inattiva Ras → loop negativo)
    - Inibizione negativa di Cdc25 (→ riduce attivazione di Ras → loop negativo)
 
+#### Approfondimento: i componenti chiave
+
+**Le proteine Ras e il ciclo GTPasico.** Ras è una piccola GTPasi: agisce come un interruttore molecolare binario. Nello stato attivo è legata a GTP (guanosina trifosfato); in quello inattivo a GDP (guanosina difosfato). La transizione da attivo a inattivo avviene per idrolisi del GTP in GDP + fosfato inorganico, una reazione molto lenta intrinsecamente ma accelerata di molti ordini di grandezza da proteine dette GAP (*GTPase-Activating Proteins*), come Ira2 nel lievito. La transizione inversa (da inattivo ad attivo) richiede lo scambio di GDP con GTP, catalizzato da proteine dette GEF (*Guanine nucleotide Exchange Factors*), come Cdc25. La disponibilità di GTP libero nella cellula influenza quindi direttamente la velocità di attivazione di Ras: questo spiega perché i nucleotidi guaninati (GTP/GDP) emergono come parametri critici nella PSA.
+
+**Il cAMP come secondo messaggero.** Il cAMP (adenosina monofosfato ciclico) è un classico "secondo messaggero" intracellulare: una piccola molecola idrofila la cui concentrazione può cambiare rapidamente in risposta a segnali extracellulari, trasmettendo l'informazione all'interno della cellula senza che il segnale originale (il "primo messaggero") attraversi la membrana plasmatica. Il cAMP viene sintetizzato dall'adenilato ciclasi (Cyr1 nel lievito) e degradato dalle fosfodiesterasi (Pde1 e Pde2). La concentrazione di cAMP è quindi una variabile dinamica governata dal bilancio tra sintesi e degradazione — ed è questa variabile che il modello computazionale analizza per cercare oscillazioni.
+
+**La PKA (Protein Kinase A).** In assenza di cAMP, la PKA è inattiva: è un tetramero formato da due subunità catalitiche (C) e due subunità regolatrici (R) che tengono le prime inattive. Quando il cAMP si lega alle subunità R, il tetramero si dissocia e le subunità C diventano cataliticamente attive. Le subunità C attive fosforilano (trasferiscono un gruppo fosfato da ATP a) un gran numero di substrati proteici, modificandone l'attività. La PKA è quindi un amplificatore e distributore del segnale cAMP: poche molecole di cAMP producono l'attivazione di molte molecole di PKA, che a sua volta agisce su centinaia di bersagli. Infine, la PKA attiva Pde1 (che degrada il cAMP) e Ira2 (che inattiva Ras), creando i loop di feedback negativo che sono il cuore della dinamica oscillatoria.
+
+**Msn2: l'indicatore delle oscillazioni.** Il transcription factor **Msn2** è un bersaglio indiretto della PKA. Quando PKA è attiva, Msn2 viene fosforilato e rimane nel citoplasma (inattivo). Quando PKA è inattiva, Msn2 migra nel nucleo e attiva geni di risposta allo stress (STRE genes). La localizzazione di Msn2 è quindi un **readout visibile** dell'attività di PKA: attraverso la microscopia a fluorescenza (Msn2 fuso a GFP), è possibile osservare la dinamica di PKA in cellule vive. Le **oscillazioni nel nucleo-citoplasma shuttling di Msn2** osservate sperimentalmente sono state la principale evidenza indiretta che il pathway Ras/cAMP/PKA possa operare in regime oscillatorio — e sono state la motivazione originale per costruire e analizzare il modello computazionale.
+
+---
+
 ### Il modello computazionale
 
 Il modello matematico del pathway comprende **33 specie molecolari** e **39 reazioni**. La domanda scientifica che ha guidato la costruzione del modello era: *In quali condizioni si instaurano oscillazioni nel pathway? Qual è il ruolo di Cdc25, Ira2 e dei nucleotidi GTP/GDP?*
 
 Le evidenze sperimentali indirette di oscillazioni erano state osservate nel nucleo-citoplasma shuttling di Msn2 (un target a valle di PKA).
+
+#### Come si costruisce un modello da 33 specie e 39 reazioni?
+
+Il processo di costruzione di un modello ODE/stocastico per un pathway di segnalazione biologica segue tipicamente questi passi:
+
+1. **Identificazione delle specie molecolari:** si elencano tutte le molecole rilevanti per il sistema — non solo le proteine principali (Ras, Cdc25, Ira2, Cyr1, PKA, Pde1, Pde2), ma anche tutti i loro **stati conformazionali e biochimici** (es. Ras-GDP, Ras-GTP, PKA tetramero inattivo, PKA subunità C libera, PKA subunità R-cAMP, ecc.). Ogni stato distinto di ogni molecola è una **specie separata** nel modello. Questo è il motivo per cui partendo da poche proteine si arriva rapidamente a 33 specie: PKA da sola, con le sue 4 subunità e le possibili combinazioni di legame con il cAMP, genera numerosi stati distinti.
+
+2. **Identificazione delle reazioni:** ogni interazione biochimica tra specie (legame, dissociazione, fosforilazione, idrolisi, scambio nucleotidico) diventa una **reazione** nel modello. A ogni reazione è associata una **costante cinetica** (es. costante di associazione, costante di dissociazione, velocità di catalisi). Queste costanti sono misurate sperimentalmente quando possibile, o stimate tramite parameter estimation quando non disponibili.
+
+3. **Scrittura delle equazioni (formalismo deterministico):** per ogni specie $X_i$, si scrive un'equazione differenziale ordinaria della forma:
+$$\frac{d[X_i]}{dt} = \sum_j \text{(reazioni che producono } X_i) - \sum_k \text{(reazioni che consumano } X_i)$$
+La velocità di ogni reazione è tipicamente descritta con la **cinetica di massa-azione** (per reazioni elementari) o la **cinetica di Michaelis-Menten** (per reazioni catalizzate da enzimi). Il risultato è un sistema di 33 ODEs accoppiate (una per specie) con 39 termini cinetici.
+
+4. **Scelta della scala di descrizione (stocastica vs. deterministica):** le ODE descrivono le concentrazioni medie nel tempo, assumendo che le molecole siano in grande numero e le reazioni eventi continui. Questa è un'ottima approssimazione per specie abbondanti, ma fallisce quando le quantità molecolari sono piccole (poche decine o centinaia di molecole), come nel caso dei regolatori di questo pathway. In quel caso occorre adottare una descrizione stocastica, in cui le reazioni sono eventi discreti e le concentrazioni sono variabili stocastiche.
+
+#### La simulazione stocastica: l'algoritmo di Gillespie (SSA)
+
+L'**algoritmo di Gillespie** (Stochastic Simulation Algorithm, SSA) è il metodo esatto per simulare le traiettorie stocastiche di un sistema di reazioni chimiche. Funziona così:
+
+1. **Stato iniziale:** si specifica il numero intero di molecole di ciascuna specie al tempo $t = 0$.
+2. **Calcolo delle propensioni:** per ogni reazione $j$, si calcola la sua *propensione* $a_j$ — una quantità proporzionale alla probabilità che quella reazione avvenga nel prossimo istante infinitesimale $dt$. Per la cinetica di massa-azione, $a_j$ è proporzionale al prodotto del numero di molecole dei reagenti e alla costante cinetica $c_j$.
+3. **Campionamento del tempo di attesa:** il tempo fino alla prossima reazione è estratto da una distribuzione esponenziale con parametro $a_0 = \sum_j a_j$ (propensione totale). Questo è esatto in virtù delle proprietà dei processi di Poisson.
+4. **Campionamento della reazione:** la reazione che avviene è scelta casualmente, con probabilità proporzionale alla sua propensione $a_j / a_0$.
+5. **Aggiornamento:** il numero di molecole viene aggiornato secondo la reazione selezionata, il tempo viene avanzato del passo campionato, e si torna al passo 2.
+
+Il risultato è una singola traiettoria stocastica del sistema. Poiché ogni traiettoria è diversa (per via del campionamento casuale), è necessario eseguire molte simulazioni per ottenere statistiche affidabili — il che spiega il bisogno di GPU computing per esplorare migliaia di combinazioni parametriche.
+
+> **Confronto deterministico vs. stocastico in questo caso studio.** La simulazione deterministica del pathway Ras/cAMP/PKA, con le stesse condizioni iniziali e gli stessi parametri, può mostrare uno stato stazionario stabile (nessuna oscillazione) per certi valori di Cdc25. Ma la simulazione stocastica, eseguita sullo stesso sistema, mostra **fluttuazioni biologiche intorno a quello stato stazionario** — fluttuazioni che possono essere biologicamente significative, specialmente nei pathway che operano con piccole quantità di molecole come questo. In alcuni casi, le fluttuazioni stocastiche possono anche innescare transizioni tra attrattori che sarebbero impossibili nel sistema deterministico (rumore-driven transitions).
+
+---
+
+### Connessione con la teoria delle biforcazioni
+
+I risultati della PSA su questo pathway sono interpretabili direttamente nel linguaggio della **teoria delle biforcazioni** (§2.4):
+
+- La transizione osservata nell'intervallo 150 < Cdc25 < 400 molecole (da stato stazionario a oscillazioni stabili e poi di nuovo a stato stazionario) corrisponde a **due biforcazioni di Hopf**: una al confine inferiore (Cdc25 ≈ 150) e una al confine superiore (Cdc25 ≈ 400). Al di là di questi valori critici, il ciclo limite (la traiettoria oscillatoria periodica nello spazio delle fasi) scompare e il sistema converge a un punto fisso.
+
+- La **PSA-2D** su GTP e Cdc25 che mappa i quattro regimi qualitativamente distinti è essenzialmente una **mappa delle biforcazioni nello spazio bidimensionale dei parametri**: i confini tra i regimi I, II, III e IV sono curve di biforcazione (linee nello spazio dei parametri dove avviene la transizione qualitativa). Questa mappa descrive in modo completo come l'interazione tra due parametri determina il regime dinamico del sistema.
+
+- Il fatto che siano necessari **entrambi** i feedback (su Cdc25 e su Ira2) per mantenere le oscillazioni stabili illustra il concetto di **robustezza attraverso la ridondanza dei meccanismi di controllo** (§1.2): non è un singolo loop di feedback, ma la combinazione di più loop, a generare il comportamento oscillatorio robusto. Rimuovere un singolo loop non distrugge il sistema, ma lo spinge fuori dal regime oscillatorio — una perdita di funzionalità graduale, non catastrofica.
+
+---
 
 ### Risultati della PSA e della SA
 
@@ -402,6 +475,8 @@ La PSA-2D su GTP e Cdc25 ha rivelato quattro regimi qualitativamente distinti, m
 | III | basso | alto | oscillazioni smorzate |
 | IV | alto | alto | oscillazioni stabili |
 
+> **Perché sono necessari entrambi GTP alto e Cdc25 alto (Regime IV)?** Cdc25 è il GEF che scambia GDP con GTP su Ras: senza abbastanza Cdc25 attivo, anche un pool abbondante di GTP non viene usato efficacemente per attivare Ras. Viceversa, con pochi GTP disponibili, anche un Cdc25 abbondante non riesce ad attivare Ras perché il nucleotide substrato è il fattore limitante. Le oscillazioni stabili richiedono che sia il "catalizzatore" (Cdc25) sia il "substrato" (GTP) siano sufficientemente abbondanti da sostenere cicli ripetuti di attivazione/inattivazione di Ras — da cui la necessità di entrambi i parametri alti nel Regime IV.
+
 **Ruolo della fosfodiesterasi Pde1 (PSA-1D):**
 Un'ulteriore PSA-1D è stata condotta sulla costante di fosforilazione di **Pde1** (parametro $c_{26}$, nell'intervallo $[1.0 \times 10^{-9}, 1.0 \times 10^{-3}]$, con valore di riferimento $1.0 \times 10^{-6}$). Pde1 è uno degli enzimi che degrada il cAMP ed è attivato da PKA (loop di feedback negativo).
 
@@ -414,6 +489,37 @@ Questa analisi sottolinea come il bilanciamento preciso dei loop di feedback (Pd
 
 **Significato biologico delle oscillazioni:**
 Le oscillazioni in questo pathway potrebbero estendere il range regolatorio del sistema attraverso la **modulazione di frequenza** (frequency-modulated signaling): la PKA — che controlla il 90% dei geni regolati dal glucosio nel lievito — può codificare informazioni diverse in base alla frequenza delle oscillazioni di cAMP, non solo alla loro ampiezza.
+
+---
+
+### 3.A Modulazione di ampiezza vs. modulazione di frequenza
+
+In molti sistemi di segnalazione cellulare, la tradizione ha interpretato i segnali intracellulari come **segnali di ampiezza**: un'alta concentrazione del secondo messaggero (es. cAMP) significa segnale "forte", una bassa concentrazione significa segnale "debole". Questo è il modello AM (amplitude modulation), analogo alla trasmissione radio AM.
+
+Tuttavia, esiste un meccanismo alternativo e più potente: la **modulazione di frequenza** (FM, frequency modulation). In un sistema FM, l'informazione è codificata nella frequenza delle oscillazioni, non nell'ampiezza media. Questo ha vantaggi importanti:
+- **Robustezza al rumore:** le variazioni di ampiezza dovute a fluttuazioni stocastiche o a variazioni nei livelli proteici non disturbano il segnale, perché l'informazione è nella frequenza.
+- **Maggiore range dinamico:** la frequenza può variare su un range più ampio senza saturazione, a differenza dell'ampiezza che è limitata dalla concentrazione massima del secondo messaggero.
+- **Decodifica specifica:** bersagli molecolari diversi possono rispondere selettivamente a frequenze diverse, permettendo la multiplexazione del segnale (diversi messaggi codificati nello stesso pathway).
+
+**Nel pathway Ras/cAMP/PKA**, la PKA controlla il 90% dei geni regolati dal glucosio nel lievito. Se la PKA opera in regime FM, allora la frequenza delle oscillazioni di cAMP potrebbe codificare l'intensità del segnale glucosio o la fase del ciclo cellulare. La localizzazione nucleare di Msn2 — che dipende dall'attività della PKA e può essere osservata direttamente — diventa allora il "decodificatore" di questo segnale oscillatorio: la frequenza con cui Msn2 entra ed esce dal nucleo riflette la frequenza delle oscillazioni di PKA e, in ultima analisi, la frequenza delle oscillazioni di cAMP.
+
+---
+
+### 3.B Sintesi: come i metodi computazionali si connettono in questo caso studio
+
+Il pathway Ras/cAMP/PKA nel lievito illustra come gli strumenti computazionali della §2 si integrino in un flusso di analisi coerente:
+
+| Strumento | Applicazione in questo caso studio | Cosa ha rivelato |
+|-----------|-----------------------------------|-----------------|
+| **Costruzione del modello ODE/stocastico** | 33 specie, 39 reazioni, cinetica di massa-azione | La struttura matematica del pathway con i suoi loop di feedback |
+| **Parameter Estimation** | Stima delle costanti cinetiche non misurabili direttamente | Parametrizzazione di riferimento del modello |
+| **PSA-1D (Cdc25)** | Variazione della quantità di Cdc25 in [100, 500] molecole | Intervallo oscillatorio: 150–400 molecole; due biforcazioni di Hopf |
+| **PSA-1D (GTP)** | Variazione della quantità iniziale di GTP | Effetti differenti a seconda del livello di Cdc25 |
+| **PSA-2D (GTP × Cdc25)** | Esplorazione congiunta di due parametri | Mappa dei 4 regimi; solo il Regime IV (entrambi alti) produce oscillazioni stabili |
+| **PSA-1D (Pde1, $c_{26}$)** | Variazione della costante di fosforilazione di Pde1 | Il bilanciamento del feedback negativo di Pde1 è critico per il regime oscillatorio |
+| **Simulazione stocastica (SSA)** | Stesse condizioni della simulazione deterministica | Rivela fluttuazioni biologiche anche fuori dall'intervallo oscillatorio; transizioni rumore-driven |
+| **Bifurcation Theory** | Interpretazione qualitativa delle transizioni osservate nella PSA | I confini dei regimi PSA corrispondono a curve di biforcazione di Hopf nello spazio dei parametri |
+| **GPU computing** | 65.000 simulazioni in 2 ore (vs. 200 su CPU) | Reso possibile il campionamento denso dello spazio bidimensionale GTP × Cdc25 |
 
 ---
 
